@@ -1,0 +1,39 @@
+Adapted from /afs/cern.ch/work/n/nakahama/public/HLTRates/ to include the kinematic variables 
+from PRD 89, 055020 (arXiv:1310.4827, M. Buckley, J. Lykken, C. Rogan, M. Spiropulu), based 
+on mega-jets clustered from 'jet' collection in existing ntuples (w/ pT > 30 GeV, |eta| < 3.2) 
+
+See VariableImplementation.C for details of variable implementation
+
+python script menuFast_wRVARS.py works the same as  menuFast.py as described in 
+https://twiki.cern.ch/twiki/bin/viewauth/Atlas/RateEstimator, with additional EF observables:
+
+cosptR
+mdeltaR
+shatR
+gaminvR
+
+Usage examples (put your favorite thresholds in place of the numbers below, of course):
+
+requirement of cosptR < 0.9:   ./menuFast_wRVARS.py cosptR900
+requirement of cosptR < 0.872: ./menuFast_wRVARS.py cosptR872
+...
+
+requirement of gaminvR > 0.1:   ./menuFast_wRVARS.py gaminvR100
+requirement of gaminvR > 0.537: ./menuFast_wRVARS.py gaminvR537
+...
+
+requirement of mdeltaR > 100 GeV:   ./menuFast_wRVARS.py mdeltaR100
+requirement of mdeltaR > 341 GeV:   ./menuFast_wRVARS.py mdeltaR341
+...
+
+requirement of shatR > 100 GeV:   ./menuFast_wRVARS.py shatR100
+requirement of shatR > 222 GeV:   ./menuFast_wRVARS.py shatR222
+...
+
+code can also cut on shatR * gaminvR "iso-yield contours:
+
+requirement of (shatR+offset)*(gaminvR+offset) > 200 GeV:   ./menuFast_wRVARS.py prodR200
+requirement of (shatR+offset)*(gaminvR+offset) > 411 GeV:   ./menuFast_wRVARS.py prodR411
+...
+
+where the offsets are specially chosen to match the shape of enriched bias data background
