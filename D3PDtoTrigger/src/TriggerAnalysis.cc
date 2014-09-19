@@ -97,6 +97,7 @@ void TriggerAnalysis::InitHemBranch(){
   fChain->SetBranchAddress("HEM_pt", HEM_pt, &b_HEM_pt);
   fChain->SetBranchAddress("HEM_eta", HEM_eta, &b_HEM_eta);
   fChain->SetBranchAddress("HEM_phi", HEM_phi, &b_HEM_phi);
+  fChain->SetBranchAddress("HEM_M", HEM_M, &b_HEM_M);
 }
 
 void TriggerAnalysis::AddVarBranch(){
@@ -105,6 +106,9 @@ void TriggerAnalysis::AddVarBranch(){
   b_cosptR = (TBranch*) fChain->Branch("cosptR", &cosptR);
   b_mdeltaR = (TBranch*) fChain->Branch("mdeltaR", &mdeltaR);
   b_gaminvR = (TBranch*) fChain->Branch("gaminvR", &gaminvR);
+  b_dphivbR = (TBranch*) fChain->Branch("dphivbR", &dphivbR);
+  b_ptcm = (TBranch*) fChain->Branch("ptcm", &ptcm);
+  
 }
 void TriggerAnalysis::FillVarBranch(){
   //check to see if hemisphere's are defined
@@ -113,11 +117,13 @@ void TriggerAnalysis::FillVarBranch(){
     cosptR = 0;
     mdeltaR = 0;
     gaminvR = 0;
+    dphivbR = 0;
+    ptcm = 0;
   } else {
     //define hemispheres and MET
       TLorentzVector H1, H2;
-      H1.SetPtEtaPhiM(HEM_pt[0],HEM_eta[0],HEM_phi[0],0.0);
-      H2.SetPtEtaPhiM(HEM_pt[1],HEM_eta[1],HEM_phi[1],0.0);
+      H1.SetPtEtaPhiM(HEM_pt[0],HEM_eta[0],HEM_phi[0],HEM_M[0]); //to be changed
+      H2.SetPtEtaPhiM(HEM_pt[1],HEM_eta[1],HEM_phi[1],HEM_M[1]);
       TVector3 MET;
       MET.SetPtEtaPhi(xe_pt,0.0,xe_phi);
 
@@ -132,14 +138,14 @@ void TriggerAnalysis::FillVarBranch(){
       TVector3 pT_CM = (H1+H2).Vect() + MET;
       pT_CM.SetZ(0.0);     
 
-      double Minv2 = (H1+H2).M2();
+      double Minv2 = Minv2 = (H1+H2).M2() - 4.*H1.M()*H2.M();
       double Einv = sqrt(MET.Mag2()+Minv2);
       //define shatR
       shatR = sqrt( ((H1+H2).E()+Einv)*((H1+H2).E()+Einv) - pT_CM.Mag2() );
 
       TVector3 vBETA_R = (1./sqrt(pT_CM.Mag2() + shatR*shatR))*pT_CM;
 
-      double gamma_R = 1./sqrt(1.-vBETA_R.Mag2());
+      double gamma_R = 1./sqrt(1.-vBETA_R.Mag2()); 
 
       //transformation from lab frame to R frame
       H1.Boost(-vBETA_R);
@@ -150,9 +156,29 @@ void TriggerAnalysis::FillVarBranch(){
       // R-frame
       //
       /////////////
-      TVector3 vBETA_Rp1 = (1./(H1.E()+H2.E()))*(H1.Vect() - H2.Vect());
+      double m1 = H1.M();
+      double m2 = H2.M();
+      double E1 = H1.E();
+      double E2 = H2.E();
+      TVector3 P1 = H1.Vect();
+      TVector3 P2 = H2.Vect();
+      double MC2 = (H1+H2).E()*(H1+H2).E() - (H1.Vect()-H2.Vect()).Mag2() - m1*m1 - m2*m2;
+      double k1 =  (m1+m2)*(m1-m2) + MC2-2*m1*m2;
+      double k2 = -(m1+m2)*(m1-m2) + MC2-2*m1*m2;
+      double Xbar = sqrt( (k1+k2)*(k1+k2)*(MC2*MC2-4*m1*m1*m2*m2) );
+      double N = ( fabs(k1*m1*m1-k2*m2*m2) - 0.5*fabs(k2-k1)*MC2 + 0.5*Xbar )/(k1*k1*m1*m1 + k2*k2*m2*m2 + k1*k2*MC2);
+      double c1 = 0.5*(1.+N*k1);
+      double c2 = 0.5*(1.+N*k2);
+      
+      
+      //TVector3 vBETA_Rp1 = (1./(H1.E()+H2.E()))*(H1.Vect() - H2.Vect());
       //define gaminvR
-      gaminvR = 1000.*sqrt(1.-vBETA_Rp1.Mag2());
+      //gaminvR = 1000.*sqrt(1.-vBETA_Rp1.Mag2());
+      TVector3 vBETA_Rp1 = (1./(c1*H1.E()+c2*H2.E()))*(c1*H1.Vect() - c2*H2.Vect());
+      gaminvR = 1000*(H1.P()+H2.P())/sqrt(pow(H1.P()+H2.P(),2.)-(P1-P2).Mag2());
+     
+     //new var
+      dphivbR = 1000*fabs(((H1+H2).Vect()).DeltaPhi(vBETA_R));
      
       //transformation from R frame to R+1 frames
       H1.Boost(-vBETA_Rp1);
@@ -164,15 +190,20 @@ void TriggerAnalysis::FillVarBranch(){
       //
       //////////////
       //define mdeltaR
-      mdeltaR = H1.E()+H2.E();      
+      mdeltaR = H1.P()+H2.P();      
       //define cosptR
       cosptR = 1000.*pT_CM.Mag()/sqrt(pT_CM.Mag2() + mdeltaR*mdeltaR);
+      ptcm = pT_CM.Mag();
+
+      //sin(atan2(pT_CM.Mag(),mdeltaR));
       
   }
   b_shatR->Fill();
   b_cosptR->Fill();
   b_mdeltaR->Fill();
   b_gaminvR->Fill();
+	b_dphivbR->Fill();
+	b_ptcm->Fill();
 }
 
 

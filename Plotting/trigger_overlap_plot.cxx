@@ -12,9 +12,10 @@ TH2F *hDraw;
 int color_list[10];
 
 TString outputFlag = "best/";
-TString filter="2J30";
+TString filter="2j30";
 //TString outputFlag = "best/";
 bool doEfficient = false;
+//bool abs_e = false;
 const int nBins = 11;
 TString triggers[] = { "Prod > 200 && 4J20",
 												"Prod > 200 && 2J30_XE40",
@@ -39,33 +40,7 @@ TString triggernames[] = {"ProdR200_4J20",
 		       							"xe100_XE70",
 		       							"ht1000_HT200",
 		       							"All jet + MET triggers" };
-const int nBinsY = 6;		       							
-TString triggersY[] = { "Prod > 200 && 4J20",
-												"Prod > 200 && 2J30_XE40",
-												"Prod > 200 && HT > 200",
-												"Prod > 200 && XE70",
-												"Prod > 200 && 2J10_XE60",
-												"Prod > 200 && 2J15_XE55" };
-TString triggernamesY[] = {"ProdR200_4J20",
-												"ProdR200_2J30_XE40",
-												"ProdR200_HT200",
-												"ProdR200_XE70",		
-												"ProdR200_2J10_XE60",
-												"ProdR200_2J15_XE55" };
-const int nBinsX = 5;											
-TString triggersX[] = { "5j85_4J20",
-		       							"j150_xe90_J75_XE40",
-		       							"xe100_XE70",
-		       							"HT > 200 && ht > 1000",
-		       							"all_norazor" };
-TString triggernamesX[] = {"5jet85_4J20",
-		       							"j150_xe90_J75_XE40",
-		       							"xe100_XE70",
-		       							"ht1000_HT200",
-		       							"All jet + MET triggers" };
-		       							
-
-
+		       						
 void trigger_overlap_plot(){
 	setstyle();
 	gStyle->SetOptStat(0);
@@ -137,16 +112,16 @@ void parseSample(TString dir,TString s_model){
 
 void makeAndOrPlots(TTree *t,TString s_model ){
 	cout << "Running over " << s_model << endl;
-	plotTrigCompare(t, s_model);
 	
+	plotTrigCompare(t, s_model);
 	TString plotName = "plots/"+outputFlag+s_model;
 	if (filter.Length() > 1) plotName+="_"+filter;
 	
 	c1->Print(plotName+"_NOT.pdf");
 	c1->Print(plotName+"_NOT.png");
 	plotTrigCompare(t, s_model, true);
-	c1->Print(plotName+"_AND.pdf");
-	c1->Print(plotName+"_AND.png");
+	c1->Print(plotName+"_abs_NOT.pdf");
+	c1->Print(plotName+"_abs_NOT.png");
 }
 
 //initialize 2d histogram
@@ -172,23 +147,17 @@ if(doAnd) t->Draw("Prod",triggerY+" && ("+triggerX+") && " + filter,"goff");
 }*/
 
 //make 2d plot
-void plotTrigCompare(TTree * t,TString s_model,bool doAnd=false){
+void plotTrigCompare(TTree * t,TString s_model,bool doAbs=false){
 	hDraw->Reset();
 	hDraw->SetMarkerColor(kWhite);
 	
-	//fille histogram
-	//if(doEfficient)
-	
 	for(int x=0; x < nBins; x++){
-    for(int y=0; y < nBins; y++){
-    	//cout << triggers[y]+" && ("+triggers[x]+")" << endl;
-    	if(doAnd) t->Draw("Prod",triggers[y]+" && ("+triggers[x]+") && " + filter,"goff");
-    	else 			t->Draw("Prod",triggers[y]+" && !("+triggers[x]+") &&" + filter,"goff");
-    	
-			float value = t->GetHistogram()->Integral();
-			t->Draw("Prod",triggers[y]+"&&"+filter,"goff");
-			value /= t->GetHistogram()->Integral();
+    for(int y=0; y < nBins; y++){   	
+			float value = t->GetEntries(triggers[y]+" && !("+triggers[x]+") &&" + filter);
+			if(!doAbs) value /= (float)t->GetEntries(triggers[y]+"&&"+filter);
+			else value /= (float)t->GetEntries(filter);
       hDraw->Fill( x+0.5, y+0.5, value*100); 
+      
       //doLogic(t, triggers[y],triggers[x],doAnd);
     }
   }
@@ -207,7 +176,7 @@ void plotTrigCompare(TTree * t,TString s_model,bool doAnd=false){
   hDraw->GetXaxis()->SetTitleSize(0.05); 
   hDraw->GetXaxis()->SetLabelSize(0.04); 
   hDraw->GetXaxis()->SetTitleOffset(1.6);
-  if(doAnd) hDraw->GetZaxis()->SetTitle("% of events passing Trigger Y that also pass Trigger X"); 
+  if(doAbs) hDraw->GetZaxis()->SetTitle("% of events that pass Trigger Y and not Trigger X"); 
   else hDraw->GetZaxis()->SetTitle("% of events passing Trigger Y that do not pass Trigger X");
   hDraw->GetZaxis()->SetTitleSize(0.03); 
   hDraw->GetZaxis()->SetTitleOffset(1.5);

@@ -62,10 +62,15 @@ private:
   float cosptR;
   float mdeltaR;
   float gaminvR;
+  float dphivbR;
+  float ptcm;
   TBranch *b_shatR;
   TBranch *b_cosptR;
   TBranch *b_mdeltaR;
   TBranch *b_gaminvR;
+  TBranch *b_dphivbR;
+  TBranch *b_ptcm;
+
 
   //info for adding Hem branches to trigger tree
   void AddHemBranch();
