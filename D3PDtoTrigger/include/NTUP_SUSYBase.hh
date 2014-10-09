@@ -19843,8 +19843,11 @@ void NTUP_SUSYBase::Init(TTree *tree)
    /////////////////////////////////
    fChain->SetBranchStatus("lbn",1);
    fChain->SetBranchAddress("lbn", &lbn, &b_lbn);
-   /*
+   
+   fChain->SetBranchStatus("RunNumber",1);
    fChain->SetBranchAddress("RunNumber", &RunNumber, &b_RunNumber);
+   
+   /*
    fChain->SetBranchAddress("EventNumber", &EventNumber, &b_EventNumber);
    fChain->SetBranchAddress("timestamp", &timestamp, &b_timestamp);
    fChain->SetBranchAddress("timestamp_ns", &timestamp_ns, &b_timestamp_ns);
@@ -24616,14 +24619,21 @@ void NTUP_SUSYBase::Init(TTree *tree)
    fChain->SetBranchAddress("mcevt_weight", &mcevt_weight, &b_mcevt_weight);
    fChain->SetBranchAddress("mcevt_nparticle", &mcevt_nparticle, &b_mcevt_nparticle);
    fChain->SetBranchAddress("mcevt_pileUpType", &mcevt_pileUpType, &b_mcevt_pileUpType);
+   */
+   mc_n = 0;
+   fChain->SetBranchStatus("mc_n", 1);
    fChain->SetBranchAddress("mc_n", &mc_n, &b_mc_n);
+   fChain->SetBranchStatus("mc_pdgId", 1);
+   fChain->SetBranchAddress("mc_pdgId", &mc_pdgId, &b_mc_pdgId);
+   fChain->SetBranchStatus("mc_pt", 1);
    fChain->SetBranchAddress("mc_pt", &mc_pt, &b_mc_pt);
+
+   /*
    fChain->SetBranchAddress("mc_m", &mc_m, &b_mc_m);
    fChain->SetBranchAddress("mc_eta", &mc_eta, &b_mc_eta);
    fChain->SetBranchAddress("mc_phi", &mc_phi, &b_mc_phi);
    fChain->SetBranchAddress("mc_status", &mc_status, &b_mc_status);
    fChain->SetBranchAddress("mc_barcode", &mc_barcode, &b_mc_barcode);
-   fChain->SetBranchAddress("mc_pdgId", &mc_pdgId, &b_mc_pdgId);
    fChain->SetBranchAddress("mc_charge", &mc_charge, &b_mc_charge);
    fChain->SetBranchAddress("mc_parents", &mc_parents, &b_mc_parents);
    fChain->SetBranchAddress("mc_children", &mc_children, &b_mc_children);

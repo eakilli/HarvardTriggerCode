@@ -184,5 +184,9 @@ private:
   float XE_eta;
   float XE_phi;
 
+  //Lead parton pT
+  void Fill_LeadPT();
+  float LeadPt;
+
 };
 #endif

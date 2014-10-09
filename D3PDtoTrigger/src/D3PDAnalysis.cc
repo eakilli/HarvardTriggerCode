@@ -119,6 +119,9 @@ int D3PDAnalysis::TriggerTreeLoop() {
     //Fill MET XE
     Fill_XE();
 
+    // Fill lead parton pT
+    Fill_LeadPT();
+
     FillTriggerTree();
     
   }
@@ -527,6 +530,18 @@ void D3PDAnalysis::ClearEventTriggerTree(){
 
 }
 
+//Lead parton pT
+void D3PDAnalysis::Fill_LeadPT(){
+  LeadPt = 0.;
+  if(mc_n <= 0) return;
+  for (unsigned int p = 0; p < mc_n; p++) {
+    if ((*mc_status)[p] != 3) break; //particles are ordered according to status code, 3 comes first
+    if (abs((*mc_pdgId)[p]) == 21 || abs((*mc_pdgId)[p]) < 5) {
+      LeadPt = (LeadPt > (*mc_pt)[p]) ? LeadPt : (*mc_pt)[p];
+    }
+  }
+}
+
 void D3PDAnalysis::FillTriggerTree(){
   T_trigger->Fill();
 }
@@ -547,6 +562,12 @@ void D3PDAnalysis::InitTriggerTree(char *sname){
   T_trigger->Branch("lbn",&lbn);
 
   char *sbranch = new char[200];
+
+  // RunNumber
+  T_trigger->Branch("RunNumber",&RunNumber);
+
+  // lead parton pT
+  T_trigger->Branch("LeadPt",&LeadPt);
 
   //xe fields
   T_trigger->Branch("xe_pt",&xe_pt);
