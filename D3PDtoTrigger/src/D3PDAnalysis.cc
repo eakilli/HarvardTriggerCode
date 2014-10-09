@@ -151,7 +151,6 @@ void D3PDAnalysis::Fill_XE(){
 }
 
 void D3PDAnalysis::Fill_xewmu(){
-  cout << MET_Egamma10NoTau_RefFinal_etx << " " << MET_RefFinal_Egamma10NoTau_etx << endl;
   TVector3 vMET;
   vMET.SetXYZ(MET_Egamma10NoTau_RefFinal_etx+MET_RefFinal_Egamma10NoTau_etx,MET_Egamma10NoTau_RefFinal_ety+MET_RefFinal_Egamma10NoTau_ety,0.);
   xewmu_pt = vMET.Mag();
