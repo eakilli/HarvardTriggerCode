@@ -11,30 +11,26 @@ TCanvas* c1;
 TH2F *hDraw;
 int color_list[10];
 
-TString outputFlag = "best/";
+TString outputFlag = "all/";
 TString filter="2j30";
 //TString outputFlag = "best/";
 bool doEfficient = false;
 //bool abs_e = false;
-const int nBins = 11;
-TString triggers[] = { "Prod > 200 && 4J20",
-												"Prod > 200 && 2J30_XE40",
-												"Prod > 200 && HT > 200",
-												"Prod > 200 && XE70",
-												"Prod > 200 && 2J10_XE60",
-												"Prod > 200 && 2J15_XE55",
+const int nBins = 9;
+TString triggers[] = { "Prod > 170 && 4J20",
+												"Prod > 170 && HT > 200",
+												"Prod > 140 && XE70",
+												"Prod > 220 && 2J15_XE55",
 		       							"5j85_4J20",
 		       							"j150_xe90_J75_XE40",
 		       							"xe100_XE70",
 		       							"HT > 200 && ht > 1000",
 		       							"all_norazor" };
 		       							
-TString triggernames[] = {"ProdR200_4J20",
-												"ProdR200_2J30_XE40",
-												"ProdR200_HT200",
-												"ProdR200_XE70",		
-												"ProdR200_2J10_XE60",
-												"ProdR200_2J15_XE55",										
+TString triggernames[] = {"ProdR170_4J20",
+												"ProdR170_HT200",
+												"ProdR140_XE70",		
+												"ProdR220_2J15_XE55",										
 		       							"5jet85_4J20",
 		       							"j150_xe90_J75_XE40",
 		       							"xe100_XE70",
@@ -47,7 +43,7 @@ void trigger_overlap_plot(){
 	c1 = new TCanvas("c1", "First canvas", 1200, 800);
 	setupTrigPlot();
 	
-	TString basedir = "/n/atlasdata1/etolley/Trigger/SAMPLES_var/";
+	TString basedir = "/n/atlasdata1/etolley/Trigger/SAMPLES_var2/";
 	/*parseSample(basedir+"GG_direct/","GG_direct_1125_225");
 	parseSample(basedir+"GG_direct/","GG_direct_1425_975");
 	parseSample(basedir+"GG_onestepCC/","GG_onestepCC_1145_785_425");
@@ -57,17 +53,18 @@ void trigger_overlap_plot(){
 	//parseSample(basedir+"WimpPair/","WimpPair_D5_DM400_QCUT80");
 	//parseSample(basedir+"WimpPair/","WimpPair_D5_DM50_QCUT300");
 	//parseSample(basedir+"WimpPair/","WimpPair_D5_DM50_QCUT80");
-	//parseDir(basedir+"SS_direct/");
-	//parseDir(basedir+"GG_direct/");
-	//parseDir(basedir+"WimpPair/");
-	//parseDir(basedir+"T1/");
+	parseDir(basedir+"SS_direct/");
+	parseDir(basedir+"GG_direct/");
+	parseDir(basedir+"WimpPair/");
+	parseDir(basedir+"T1/");
+	parseDir(basedir+"MONOJET_B/");
 	
 	//Samples with best Razor Trigger improvement
-  parseSample(basedir+"WimpPair/","WimpPair_D5_DM400_QCUT80");
- 	parseSample(basedir+"WimpPair/","WimpPair_D5_DM50_QCUT80");
-	parseSample(basedir+"SS_direct/","SS_direct_1125_975");
-	parseSample(basedir+"GG_direct/","GG_direct_1125_975");
-	parseSample(basedir+"T1/","Tt_T700_L500");
+  //parseSample(basedir+"WimpPair/","WimpPair_D5_DM400_QCUT80");
+ 	//parseSample(basedir+"WimpPair/","WimpPair_D5_DM50_QCUT80");
+	//parseSample(basedir+"SS_direct/","SS_direct_1125_975");
+	//parseSample(basedir+"GG_direct/","GG_direct_1125_975");
+	//parseSample(basedir+"T1/","Tt_T700_L500");*/
 }
 
 /*************************************************************
@@ -113,15 +110,18 @@ void parseSample(TString dir,TString s_model){
 void makeAndOrPlots(TTree *t,TString s_model ){
 	cout << "Running over " << s_model << endl;
 	
-	plotTrigCompare(t, s_model);
+	bool savePlot = plotTrigCompare(t, s_model);
 	TString plotName = "plots/"+outputFlag+s_model;
 	if (filter.Length() > 1) plotName+="_"+filter;
-	
-	c1->Print(plotName+"_NOT.pdf");
-	c1->Print(plotName+"_NOT.png");
-	plotTrigCompare(t, s_model, true);
-	c1->Print(plotName+"_abs_NOT.pdf");
-	c1->Print(plotName+"_abs_NOT.png");
+	if (savePlot){
+		c1->Print(plotName+"_NOT.pdf");
+		c1->Print(plotName+"_NOT.png");
+	}
+	savePlot = plotTrigCompare(t, s_model, true);
+	if (savePlot){
+		c1->Print(plotName+"_abs_NOT.pdf");
+		c1->Print(plotName+"_abs_NOT.png");
+	}
 }
 
 //initialize 2d histogram
@@ -136,28 +136,18 @@ void setupTrigPlot(){
 	     nBins, bins); 
 }
 
-/*void doLogic(TTree * t, TString triggerY, TString triggerX, bool doAnd){
-if(doAnd) t->Draw("Prod",triggerY+" && ("+triggerX+") && " + filter,"goff");
-    	else 			t->Draw("Prod",triggerY+" && !("+triggerX+") &&" + filter,"goff");
-    	
-			float value = t->GetHistogram()->Integral();
-			t->Draw("Prod",triggerY+"&&"+filter,"goff");
-			value /= t->GetHistogram()->Integral();
-      hDraw->Fill( x+0.5, y+0.5, value*100); 
-}*/
-
 //make 2d plot
-void plotTrigCompare(TTree * t,TString s_model,bool doAbs=false){
+bool plotTrigCompare(TTree * t,TString s_model,bool doAbs=false){
 	hDraw->Reset();
 	hDraw->SetMarkerColor(kWhite);
-	
+	float totval = 0;
 	for(int x=0; x < nBins; x++){
     for(int y=0; y < nBins; y++){   	
 			float value = t->GetEntries(triggers[y]+" && !("+triggers[x]+") &&" + filter);
 			if(!doAbs) value /= (float)t->GetEntries(triggers[y]+"&&"+filter);
 			else value /= (float)t->GetEntries(filter);
       hDraw->Fill( x+0.5, y+0.5, value*100); 
-      
+      if (x == nBins-1) totval+=value;
       //doLogic(t, triggers[y],triggers[x],doAnd);
     }
   }
@@ -169,17 +159,17 @@ void plotTrigCompare(TTree * t,TString s_model,bool doAbs=false){
   //format plot
   gStyle->SetPaintTextFormat("5.0f");
   hDraw->GetYaxis()->SetTitle("Trigger Y");
-  hDraw->GetYaxis()->SetTitleSize(0.05); 
+  hDraw->GetYaxis()->SetTitleSize(0.04); 
   hDraw->GetYaxis()->SetLabelSize(0.04); 
-  hDraw->GetYaxis()->SetTitleOffset(2.3);
+  hDraw->GetYaxis()->SetTitleOffset(2.7);
   hDraw->GetXaxis()->SetTitle("Trigger X"); 
-  hDraw->GetXaxis()->SetTitleSize(0.05); 
+  hDraw->GetXaxis()->SetTitleSize(0.04); 
   hDraw->GetXaxis()->SetLabelSize(0.04); 
-  hDraw->GetXaxis()->SetTitleOffset(1.6);
+  hDraw->GetXaxis()->SetTitleOffset(1.7);
   if(doAbs) hDraw->GetZaxis()->SetTitle("% of events that pass Trigger Y and not Trigger X"); 
   else hDraw->GetZaxis()->SetTitle("% of events passing Trigger Y that do not pass Trigger X");
   hDraw->GetZaxis()->SetTitleSize(0.03); 
-  hDraw->GetZaxis()->SetTitleOffset(1.5);
+  hDraw->GetZaxis()->SetTitleOffset(1.6);
   hDraw->GetZaxis()->SetRangeUser(0., 100.);
   hDraw->SetMarkerSize(1.0);
   c1->SetTopMargin(0.072);
@@ -193,9 +183,12 @@ void plotTrigCompare(TTree * t,TString s_model,bool doAbs=false){
   l.SetNDC();
   l.SetTextColor(kAzure+1);
   l.SetTextSize(0.03);
-  l.DrawLatex(0.2, 0.05, "Filter: 2 Jets with p_{T} > 30 GeV");
+  l.DrawLatex(0.02, 0.13, "Filter: 2 Jets with p_{T} > 30 GeV");
+  l.DrawLatex(0.02, 0.07, "Prod = ("+getVarName("shatR")+" + 200 GeV)*("+getVarName("gaminvR")+")");
+  l.DrawLatex(0.02, 0.02, "ProdR threshold set so rate ~28Hz");
   }
   drawText(getSampleName(s_model));
+	return totval > 0.01;
  
 }
 

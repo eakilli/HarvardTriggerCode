@@ -175,7 +175,7 @@ void TriggerAnalysis::FillVarBranch(){
       //define gaminvR
       //gaminvR = 1000.*sqrt(1.-vBETA_Rp1.Mag2());
       TVector3 vBETA_Rp1 = (1./(c1*H1.E()+c2*H2.E()))*(c1*H1.Vect() - c2*H2.Vect());
-      gaminvR = 1000*sqrt(pow(H1.P()+H2.P(),2.)-(P1-P2).Mag2())/(H1.P()+H2.P());
+      gaminvR = 1000*sqrt(pow(H1.P()+H2.P(),2.)-(P1-P2).Mag2()))/(H1.P()+H2.P());
      
      //new var
       dphivbR = 1000*fabs(((H1+H2).Vect()).DeltaPhi(vBETA_R));
