@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import getopt
 from math import sqrt
+from menuFast_wRVARS import Threshold
 import sys, os
 
 #from RootUtils import PyROOTFixes
@@ -41,70 +42,7 @@ vars={'EM':    3,
       'bjet':     2,
       'fwdjet':   2,
       'fwdejet':  2,
-}
-
-class Threshold:
-    def __init__(self,thresh):
-        var=''
-        value=''
-        self.mult=1
-        if thresh[0].isdigit():
-            self.mult=int(thresh[0])
-            thresh=thresh[1:]
-        for v in thresh:
-            if v.isdigit():
-                value+=v
-            else:
-                var+=v
-        if var=='J':  var='JET'
-        if var=='j':  var='jet'
-        if var=='BJ': var='BJET'
-        if var=='MET': var='XE'
-
-        Vthresh=False
-        if 'V' in var:
-            var=var.replace('V','')
-            Vthresh=True
-        if not var in vars and var!='HT' and var!='MHT' and var!='ht' and var!='cosptR' and var!='mdeltaR' and var!='shatR' and var!='gaminvR' and var!='prodR':
-            raise NameError('Do not how to interpret : '+thresh)
-        self.var=var
-        try:
-            self.thresh=int(value)*1000
-            if 'MU' in var:
-                self.thresh-=1000
-            if 'mu' in var:
-                self.thresh-=1000    
-            if 'TAU' in var:
-                self.thresh+=1500
-            if 'tau' in var:        
-                self.thresh+=2000   
-        except ValueError:
-            raise ValueError('No valid threshold found in: '+thresh)
-        if Vthresh:
-            if self.thresh<15000:
-                self.cut='%s_pt[%d]>%d+1000*(abs(%s_eta[%d])<0.8||abs(%s_eta[%d])>2.0)' % ( self.var,self.mult-1,self.thresh,self.var,self.mult-1,self.var,self.mult-1)
-            else:
-                self.cut='%s_pt[%d]>%d+1000*(abs(%s_eta[%d])<0.8||abs(%s_eta[%d])>2.0)+1000*(abs(%s_eta[%d])<1.2||abs(%s_eta[%d])>1.6)' % ( self.var,self.mult-1,self.thresh,self.var,self.mult-1,self.var,self.mult-1,self.var,self.mult-1,self.var,self.mult-1)
-        else:
-            self.cut='%s_pt[%d]>%d' % ( self.var,self.mult-1,self.thresh)
-        if var=='HT':
-            self.cut='Sum$(JET_pt)>%d' % self.thresh
-        if var=='MHT':
-            self.cut='Sum$(JET_pt*cos(JET_phi))**2+Sum$(JET_pt*sin(JET_phi))**2>%d' % (self.thresh**2)
-        if var=='ht':
-            self.cut='Sum$(jet_pt)>%d' % self.thresh
-        if var=='cosptR':
-            self.cut='(cosptR*1000<%d)&&(cosptR>0)' % (self.thresh)
-        if var=='gaminvR':
-            self.cut='gaminvR*1000>%d' % (self.thresh)
-        if var=='mdeltaR':
-            self.cut='mdeltaR>%d' % (self.thresh)
-        if var=='shatR':
-            self.cut='shatR>%d' % (self.thresh)
-            print "%s %d" % (self.var,self.thresh)
-        if var=='prodR':
-            self.cut='(shatR+85000)*(gaminvR/1000.+0.048)>%d' % (self.thresh)
-        
+}        
 
 class Item:
     def __init__(self,item):
@@ -354,6 +292,9 @@ def getRate(triggers):
         MinScaled=1.5
         MaxScaledError=0.3
         MaxScaled=6.
+        
+
+        
         # Scaling from 8 TeV to 14 TeV
         if rateJF17_8TeV[trigger][0]>0. and rateJF17_14TeV[trigger][0]>0.:
 
