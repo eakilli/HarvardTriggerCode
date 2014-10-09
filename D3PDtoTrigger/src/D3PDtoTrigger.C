@@ -33,11 +33,13 @@ int main(int argc, char* argv[]) {
   /// them into a single TChain
   char inputFileName[400];
   char inputListName[400];
+  char inputFolderName[400];
   char outputFileName[400];
   char TreeName[400];
 
   bool DO_FILE = false;
   bool DO_LIST = false;
+  bool DO_FOLDER = false;
   bool GOT_TREE = false;
 
   if ( argc < 2 ){
@@ -57,6 +59,10 @@ int main(int argc, char* argv[]) {
       sscanf(argv[i],"-ilist=%s",  inputListName);
       DO_LIST = true;
     }
+    if (strncmp(argv[i],"-ifold",6)==0){
+      sscanf(argv[i],"-ifold=%s",  inputFolderName);
+      DO_FOLDER = true;
+    }
     if (strncmp(argv[i],"-ofile",6)==0)  sscanf(argv[i],"-ofile=%s",  outputFileName);
     if (strncmp(argv[i],"-tree",5)==0){
       sscanf(argv[i],"-tree=%s",  TreeName);
@@ -73,6 +79,34 @@ int main(int argc, char* argv[]) {
   }
   char Buffer[500];
   char MyRootFile[2000];  
+
+  if(DO_FOLDER){
+    char *CMD = new char[2000];
+    sprintf(CMD,"ls %s/*.root* > temp_list.list",inputFolderName);
+    system(CMD);
+
+    std::cout << "Chaining trees from input folder: " << inputFolderName << std::endl;
+    ifstream *inputFile = new ifstream("temp_list.list");
+
+    while( !(inputFile->eof()) ){
+      inputFile->getline(Buffer,500);
+      if (!strstr(Buffer,"#") && !(strspn(Buffer," ") == strlen(Buffer))){
+	sscanf(Buffer,"%s",MyRootFile);
+	if(string(MyRootFile).find("eos") != std::string::npos){
+	  theChain->Add("root:/"+TString(MyRootFile));
+	} else {
+	  theChain->Add(MyRootFile);
+	}
+
+	std::cout << "chaining " << MyRootFile << std::endl;
+      }
+    }
+    inputFile->close();
+    delete inputFile;
+
+    sprintf(CMD,"rm temp_list.list");
+    system(CMD);
+  }
 
   if(DO_LIST){
     std::cout << "Chaining trees from input list: " << inputListName << std::endl;

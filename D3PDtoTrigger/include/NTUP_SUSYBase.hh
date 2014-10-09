@@ -3402,6 +3402,12 @@ public :
    vector<float>   *tau_trueTauAssocSmall_dr;
    vector<int>     *tau_trueTauAssocSmall_index;
    vector<int>     *tau_trueTauAssocSmall_matched;
+
+  // NTUP COMMON compatibility
+   Float_t         MET_RefFinal_Egamma10NoTau_etx;
+   Float_t         MET_RefFinal_Egamma10NoTau_ety;
+   Float_t         MET_RefFinal_Egamma10NoTau_sumet;
+
    Float_t         MET_RefFinal_etx;
    Float_t         MET_RefFinal_ety;
    Float_t         MET_RefFinal_phi;
@@ -10585,6 +10591,13 @@ public :
    TBranch        *b_tau_trueTauAssocSmall_dr;   //!
    TBranch        *b_tau_trueTauAssocSmall_index;   //!
    TBranch        *b_tau_trueTauAssocSmall_matched;   //!
+
+  // NTUP COMMON compatibility
+  TBranch        *b_MET_RefFinal_Egamma10NoTau_etx;   //!
+   TBranch        *b_MET_RefFinal_Egamma10NoTau_ety;   //!
+   TBranch        *b_MET_RefFinal_Egamma10NoTau_sumet;   //!
+
+
    TBranch        *b_MET_RefFinal_etx;   //!
    TBranch        *b_MET_RefFinal_ety;   //!
    TBranch        *b_MET_RefFinal_phi;   //!
@@ -21507,6 +21520,7 @@ void NTUP_SUSYBase::Init(TTree *tree)
    /////////////////////////////////
    // MET_RefFinal info
    /////////////////////////////////
+   /*
    fChain->SetBranchStatus("MET_RefFinal_*",1);
    fChain->SetBranchAddress("MET_RefFinal_etx", &MET_RefFinal_etx, &b_MET_RefFinal_etx);
    fChain->SetBranchAddress("MET_RefFinal_ety", &MET_RefFinal_ety, &b_MET_RefFinal_ety);
@@ -21555,7 +21569,7 @@ void NTUP_SUSYBase::Init(TTree *tree)
    fChain->SetBranchAddress("MET_RefJet_ety_ForwardReg", &MET_RefJet_ety_ForwardReg, &b_MET_RefJet_ety_ForwardReg);
    fChain->SetBranchAddress("MET_RefJet_sumet_ForwardReg", &MET_RefJet_sumet_ForwardReg, &b_MET_RefJet_sumet_ForwardReg);
    fChain->SetBranchAddress("MET_RefJet_phi_ForwardReg", &MET_RefJet_phi_ForwardReg, &b_MET_RefJet_phi_ForwardReg);
-
+   */
    /////////////////////////////////
    // other MET info info
    /////////////////////////////////
@@ -22015,6 +22029,29 @@ void NTUP_SUSYBase::Init(TTree *tree)
    fChain->SetBranchAddress("MET_LocHadTopo_sumet_ForwardReg", &MET_LocHadTopo_sumet_ForwardReg, &b_MET_LocHadTopo_sumet_ForwardReg);
    fChain->SetBranchAddress("MET_LocHadTopo_phi_ForwardReg", &MET_LocHadTopo_phi_ForwardReg, &b_MET_LocHadTopo_phi_ForwardReg);
    
+   /////////////////////////////////
+   // MET Egamma10NoTau RefFinal info
+   /////////////////////////////////
+
+   MET_Egamma10NoTau_RefFinal_etx = 0.;
+   MET_Egamma10NoTau_RefFinal_etx = 0.;
+   MET_RefFinal_Egamma10NoTau_etx = 0.;
+   MET_RefFinal_Egamma10NoTau_ety = 0.;
+
+   fChain->SetBranchStatus("MET_Egamma10NoTau_RefFinal_etx",1);
+   fChain->SetBranchStatus("MET_Egamma10NoTau_RefFinal_ety",1);
+   fChain->SetBranchStatus("MET_RefFinal_Egamma10NoTau_etx",1);
+   fChain->SetBranchStatus("MET_RefFinal_Egamma10NoTau_ety",1);
+   
+
+   // NTUP_SUSY
+   fChain->SetBranchAddress("MET_Egamma10NoTau_RefFinal_etx", &MET_Egamma10NoTau_RefFinal_etx, &b_MET_Egamma10NoTau_RefFinal_etx);
+   fChain->SetBranchAddress("MET_Egamma10NoTau_RefFinal_ety", &MET_Egamma10NoTau_RefFinal_ety, &b_MET_Egamma10NoTau_RefFinal_ety);
+
+   // NTUP_COMMON
+   fChain->SetBranchAddress("MET_RefFinal_Egamma10NoTau_etx", &MET_RefFinal_Egamma10NoTau_etx, &b_MET_RefFinal_Egamma10NoTau_etx);
+   fChain->SetBranchAddress("MET_RefFinal_Egamma10NoTau_ety", &MET_RefFinal_Egamma10NoTau_ety, &b_MET_RefFinal_Egamma10NoTau_ety);
+
      /*
    fChain->SetBranchAddress("MET_Truth_NonInt_etx", &MET_Truth_NonInt_etx, &b_MET_Truth_NonInt_etx);
    fChain->SetBranchAddress("MET_Truth_NonInt_ety", &MET_Truth_NonInt_ety, &b_MET_Truth_NonInt_ety);

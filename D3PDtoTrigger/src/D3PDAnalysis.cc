@@ -148,9 +148,12 @@ void D3PDAnalysis::Fill_XE(){
 }
 
 void D3PDAnalysis::Fill_xewmu(){
-  xewmu_pt = MET_RefFinal_et;
+  cout << MET_Egamma10NoTau_RefFinal_etx << " " << MET_RefFinal_Egamma10NoTau_etx << endl;
+  TVector3 vMET;
+  vMET.SetXYZ(MET_Egamma10NoTau_RefFinal_etx+MET_RefFinal_Egamma10NoTau_etx,MET_Egamma10NoTau_RefFinal_ety+MET_RefFinal_Egamma10NoTau_ety,0.);
+  xewmu_pt = vMET.Mag();
   xewmu_eta = 0.0;
-  xewmu_phi = MET_RefFinal_phi;
+  xewmu_phi = vMET.Phi();
 }
 
 void D3PDAnalysis::Fill_xe(){
