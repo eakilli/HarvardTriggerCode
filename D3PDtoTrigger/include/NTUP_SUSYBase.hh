@@ -24627,12 +24627,13 @@ void NTUP_SUSYBase::Init(TTree *tree)
    fChain->SetBranchAddress("mc_pdgId", &mc_pdgId, &b_mc_pdgId);
    fChain->SetBranchStatus("mc_pt", 1);
    fChain->SetBranchAddress("mc_pt", &mc_pt, &b_mc_pt);
+   fChain->SetBranchStatus("mc_status", 1);
+   fChain->SetBranchAddress("mc_status", &mc_status, &b_mc_status);
 
    /*
    fChain->SetBranchAddress("mc_m", &mc_m, &b_mc_m);
    fChain->SetBranchAddress("mc_eta", &mc_eta, &b_mc_eta);
    fChain->SetBranchAddress("mc_phi", &mc_phi, &b_mc_phi);
-   fChain->SetBranchAddress("mc_status", &mc_status, &b_mc_status);
    fChain->SetBranchAddress("mc_barcode", &mc_barcode, &b_mc_barcode);
    fChain->SetBranchAddress("mc_charge", &mc_charge, &b_mc_charge);
    fChain->SetBranchAddress("mc_parents", &mc_parents, &b_mc_parents);
